@@ -1,18 +1,92 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <!-- Kindle 屏幕适配：禁用缩放，设置理想宽度 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>KindleClock</title>
-    <style>
-      /* 防止 Kindle 浏览器默认的外边距 */
-      body { margin: 0; padding: 0; overflow: hidden; background-color: #fff; }
-    </style>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>KindleClock</title>
+  <!-- 全屏错误日志 -->
+  <div id="error-log"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; color:black; z-index:99999; padding:20px; font-size:16px; word-break:break-all; overflow:auto;">
+    <h3>Runtime Error:</h3>
+    <pre id="error-content"></pre>
+    <button onclick="document.getElementById('error-log').style.display='none'"
+      style="border:2px solid black; padding:10px; margin-top:20px; font-size:20px;">关闭</button>
+  </div>
+  <script>
+    window.onerror = function (message, source, lineno, colno, error) {
+      var log = document.getElementById('error-log');
+      var content = document.getElementById('error-content');
+      log.style.display = 'block';
+      content.textContent += 'Msg: ' + message + '\nLine: ' + lineno + '\nSrc: ' + source + '\n\n';
+    };
+  </script>
+  <!-- 使用相对路径引入样式 -->
+  <link rel="stylesheet" href="src/style.css">
+</head>
+
+<body>
+  <div id="app-container" class="container">
+    <!-- 遮罩层 (防残影) -->
+    <div id="refresh-overlay" class="refresh-overlay hidden"></div>
+
+    <!-- 设置入口 -->
+    <div id="settings-trigger" class="settings-trigger"></div>
+
+    <!-- 内容区 -->
+    <main id="content" class="content">
+      <!-- 数字时钟 DOM -->
+      <div id="digital-clock" class="digital-clock hidden">
+        <div id="dc-time" class="dc-time">00:00</div>
+        <div id="dc-date" class="dc-date">1月1日 周一</div>
+      </div>
+
+      <!-- 指针时钟 DOM -->
+      <div id="analog-clock" class="analog-clock hidden">
+        <svg viewBox="0 0 100 100" class="clock-svg">
+          <circle cx="50" cy="50" r="48" class="face" />
+          <!-- 刻度将由 JS 动态生成 -->
+          <g id="ac-ticks"></g>
+          <line id="ac-hour" x1="50" y1="50" x2="50" y2="25" class="hand hour" />
+          <line id="ac-minute" x1="50" y1="50" x2="50" y2="10" class="hand minute" />
+          <circle cx="50" cy="50" r="2" class="center" />
+        </svg>
+        <div id="ac-date" class="analog-date">1月1日</div>
+      </div>
+    </main>
+
+    <!-- 设置弹窗 -->
+    <div id="settings-overlay" class="settings-overlay hidden">
+      <div class="settings-dialog">
+        <h2 class="settings-title">系统设置</h2>
+
+        <div class="settings-group">
+          <label>时钟样式</label>
+          <div class="radio-group" id="opt-clock-type">
+            <button data-val="digital">数字</button>
+            <button data-val="analog">指针</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <label>屏幕旋转</label>
+          <div class="radio-group" id="opt-rotation">
+            <button data-val="0">0°</button>
+            <button data-val="90">90°</button>
+            <button data-val="180">180°</button>
+            <button data-val="270">270°</button>
+          </div>
+        </div>
+
+        <button id="btn-close-settings" class="close-btn">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 引入原生 JS 逻辑 (相对路径) -->
+  <script src="src/clock-renderer.js"></script>
+  <script src="src/main.js"></script>
+</body>
+
 </html>

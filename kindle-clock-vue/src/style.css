@@ -9,7 +9,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body, #app {
+html, body {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -20,10 +20,167 @@ html, body, #app {
   overflow: hidden;
 }
 
-/* Kindle 灰度适配优化 */
+/* Kindle 灰度适配 */
 @media screen {
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+}
+
+.visible { display: flex !important; }
+.hidden { display: none !important; }
+
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+  position: relative;
+  background-color: white; /* 防止旋转时背景透出 */
+}
+
+/* --- 防残影遮罩 --- */
+.refresh-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: black;
+  z-index: 9999;
+  animation: blink 1s steps(2);
+}
+@keyframes blink {
+  0% { background: white; }
+  50% { background: black; }
+  100% { background: white; }
+}
+
+/* --- 设置入口 --- */
+.settings-trigger {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 150px;
+  height: 150px;
+  z-index: 100;
+  cursor: pointer;
+}
+
+.content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- 数字时钟 --- */
+.digital-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.dc-time {
+  font-size: 10rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 2rem;
+  font-feature-settings: "tnum";
+}
+.dc-date {
+  font-size: 2.5rem;
+  font-weight: 400;
+}
+@media (max-width: 600px) {
+  .dc-time { font-size: 6rem; }
+  .dc-date { font-size: 1.5rem; }
+}
+
+/* --- 指针时钟 --- */
+.analog-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.clock-svg {
+  width: 60vh;
+  height: 60vh;
+  max-width: 80vw;
+  max-height: 80vw;
+}
+.face, .tick {
+  fill: none;
+  stroke: black;
+  stroke-width: 2;
+}
+.hand {
+  stroke: black;
+  stroke-linecap: round;
+}
+.hand.hour { stroke-width: 4; }
+.hand.minute { stroke-width: 2.5; }
+.center { fill: black; }
+.analog-date {
+  margin-top: 2rem;
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+/* --- 设置面板 --- */
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.settings-dialog {
+  background: white;
+  padding: 3rem;
+  border: 5px solid black;
+  width: 85%;
+  max-width: 500px;
+  box-shadow: 10px 10px 0px rgba(0,0,0,0.1);
+}
+.settings-title {
+  font-size: 2.5rem;
+  margin-top: 0;
+  border-bottom: 3px solid black;
+  padding-bottom: 1rem;
+}
+.settings-group { margin: 2rem 0; }
+.settings-group label {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+.radio-group { display: flex; gap: 1rem; }
+.radio-group button {
+  flex: 1;
+  padding: 1rem;
+  font-size: 1.2rem;
+  border: 2px solid black;
+  background: white;
+  cursor: pointer;
+}
+.radio-group button.active {
+  background: black;
+  color: white;
+}
+.close-btn {
+  width: 100%;
+  padding: 1.5rem;
+  font-size: 1.5rem;
+  background: black;
+  color: white;
+  border: none;
+  margin-top: 1rem;
+  cursor: pointer;
 }

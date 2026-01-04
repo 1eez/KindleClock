@@ -85,7 +85,7 @@
         safeSetHTML('weather-text', cityInfo + ' ' + data.weather);
 
         // 2. 当前温度
-        safeSetHTML('weather-current', data.temp + '°C');
+        safeSetHTML('weather-current', data.temp + '°');
 
         // 3. 高低温
         safeSetHTML('weather-range', '最高 ' + data.max_temp + '° / 最低 ' + data.min_temp + '°');

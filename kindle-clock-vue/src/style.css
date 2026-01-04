@@ -17,6 +17,54 @@ body {
   overflow: hidden;
 }
 
+/* --- 天气补充样式 (Append) --- */
+.weather-container {
+  margin-top: 5vh;
+  /* 稍微隔开一点 */
+  text-align: center;
+  width: 100%;
+}
+
+.w-text {
+  font-size: 3rem;
+  /* 城市天气 */
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.w-temp {
+  font-size: 7rem;
+  /* 温度特大 */
+  font-weight: bold;
+  line-height: 1;
+  margin: 1rem 0;
+  display: block;
+}
+
+.w-range {
+  font-size: 2.5rem;
+  /* 高低温 */
+  color: #444;
+  /* 深灰 */
+  display: block;
+}
+
+@media (max-width: 600px) {
+  .w-text {
+    font-size: 2rem;
+  }
+
+  .w-temp {
+    font-size: 5rem;
+  }
+
+  .w-range {
+    font-size: 1.5rem;
+  }
+}
+
+
 /* 核心布局：回归 Table 布局 (兼容性之王) */
 .container {
   display: table;

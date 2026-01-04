@@ -59,6 +59,12 @@
         </svg>
         <div id="ac-date" class="analog-date">1月1日</div>
       </div>
+      <!-- 天气区域 (插入在主内容下方) -->
+      <div id="weather-container" class="weather-container">
+        <div id="weather-current" class="w-temp">--°C</div>
+        <div id="weather-text" class="w-text">正在获取天气...</div>
+        <div id="weather-range" class="w-range">-- ~ --°C</div>
+      </div>
     </main>
 
     <!-- 设置弹窗 -->
@@ -89,8 +95,12 @@
     </div>
   </div>
 
+  <!-- 外部依赖: IP 定位 -->
+  <script src="https://pv.sohu.com/cityjson"></script>
+
   <!-- 引入原生 JS 逻辑 -->
   <script src="src/clock-renderer.js"></script>
+  <script src="src/weather.js"></script>
   <script src="src/main.js"></script>
 </body>
 

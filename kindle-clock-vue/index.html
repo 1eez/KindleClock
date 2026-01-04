@@ -61,9 +61,12 @@
       </div>
       <!-- 天气区域 (插入在主内容下方) -->
       <div id="weather-container" class="weather-container">
-        <div id="weather-current" class="w-temp">--°</div>
-        <div id="weather-text" class="w-text">正在获取天气...</div>
-        <div id="weather-range" class="w-range">-- ~ --°C</div>
+        <div id="weather-icon" class="iconfont"></div>
+        <div>
+          <div id="weather-current" class="w-temp">--°</div>
+          <div id="weather-text" class="w-text">正在获取天气...</div>
+          <div id="weather-range" class="w-range">-- ~ --°C</div>
+        </div>
       </div>
     </main>
 
@@ -88,6 +91,12 @@
             <button data-val="180">180°</button>
             <button data-val="270">270°</button>
           </div>
+        </div>
+
+        <div class="settings-group">
+          <button id="btn-force-refresh"
+            style="width:100%; padding:1.5rem; font-size:1.5rem; background:white; color:black; border:2px solid black; margin-bottom:1rem; font-weight:bold;">强制刷新
+            (清除缓存)</button>
         </div>
 
         <button id="btn-close-settings" class="close-btn">关闭</button>

@@ -122,6 +122,17 @@
             dom.btnCloseSettings.onclick = closeSettings;
         }
 
+        // 强制刷新
+        var btnRefresh = document.getElementById('btn-force-refresh');
+        if (btnRefresh) {
+            btnRefresh.onclick = function () {
+                // 强制刷新逻辑: 添加随机时间戳 query
+                var url = window.location.href.split('?')[0];
+                var t = new Date().getTime();
+                window.location.href = url + '?t=' + t;
+            };
+        }
+
         bindRadioGroup('opt-clock-type', function (val) {
             config.clockType = val;
             SafeStorage.set('clockType', val);

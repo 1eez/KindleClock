@@ -72,22 +72,51 @@
         xhr.send(null);
     };
 
+    // 图标映射 (移植自 old project)
+    // 格式: [白天图标, 夜间图标]
+    var weaImgs = {
+        xue: ['&#xe645;', '&#xe645;'],
+        lei: ['&#xe643;', '&#xe643;'],
+        shachen: ['&#xe646;', '&#xe646;'],
+        wu: ['&#xe647;', '&#xe647;'],
+        bingbao: ['&#xe667;', '&#xe667;'],
+        yun: ['&#xe648;', '&#xe648;'],
+        duoyun: ['&#xe648;', '&#xe648;'],
+        yu: ['&#xe64b;', '&#xe64b;'],
+        yin: ['&#xe64a;', '&#xe652;'],
+        qing: ['&#xe649;', '&#xe764;'],
+        weizhi: ['&#xe6f2;', '&#xe6f2;']
+    };
+
     function render(data) {
         // data 结构参考:
         // weather: "晴"
+        // weather_code: "qing" (假设 API 返回这个，如果没有需要 map)
         // temp: "25"
         // max_temp: "30"
         // min_temp: "20"
 
-        // 1. 天气状况文本 (加上城市信息)
+        // 1. 图标逻辑
+        var code = data.weather_code || 'weizhi';
+        var imgs = weaImgs[code] || weaImgs['weizhi'];
+        var img = imgs[0];
+
+        // 判断日夜 (6:00 - 19:00 为白天)
+        var nowHour = new Date().getHours();
+        if (nowHour >= 19 || nowHour < 6) {
+            img = imgs[1];
+        }
+        safeSetHTML('weather-icon', img);
+
+        // 2. 天气状况文本 (加上城市信息)
         // 格式: 城市·区县 天气
         var cityInfo = data.city + ' ' + (data.district || '');
         safeSetHTML('weather-text', cityInfo + ' ' + data.weather);
 
-        // 2. 当前温度
+        // 3. 当前温度
         safeSetHTML('weather-current', data.temp + '°');
 
-        // 3. 高低温
+        // 4. 高低温
         safeSetHTML('weather-range', '最高 ' + data.max_temp + '° / 最低 ' + data.min_temp + '°');
     }
 

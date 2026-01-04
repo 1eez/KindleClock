@@ -17,12 +17,52 @@ body {
   overflow: hidden;
 }
 
-/* --- 天气补充样式 (Append) --- */
+@font-face {
+  font-family: "iconfont";
+  src: url("./assets/fonts/iconfont.eot");
+  src: url("./assets/fonts/iconfont.eot?#iefix") format("embedded-opentype"),
+    url("./assets/fonts/iconfont.woff2") format("woff2"),
+    url("./assets/fonts/iconfont.woff") format("woff"),
+    url("./assets/fonts/iconfont.ttf") format("truetype"),
+    url("./assets/fonts/iconfont.svg#iconfont") format("svg");
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 7.5rem;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: inline-block;
+  /* Ensure it takes up space even if empty-ish */
+}
+
+/* Kindle WebKit doesn't support 'gap' or standard 'flex' well. Use -webkit- box model or flex, and margins. */
+/* Layout v3: 回归最原始的 inline-block，为了极致的兼容性 */
 .weather-container {
   margin-top: 5vh;
-  /* 稍微隔开一点 */
   text-align: center;
   width: 100%;
+  font-size: 0;
+  /* 消除 inline-block 间隙 */
+}
+
+/* Icon adjustment for spacing */
+.weather-container .iconfont {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 2rem;
+  font-size: 7.5rem;
+  /* 重新声明字体大小，因为父级设为了0 */
+}
+
+/* Text container alignment */
+.weather-container>div:last-child {
+  display: inline-block;
+  vertical-align: middle;
+  text-align: left;
+  font-size: 1rem;
+  /* 重置字体大小基准 */
 }
 
 .w-text {

@@ -1,4 +1,4 @@
-// 纯 ES5 渲染器 - 防御性版本 v3
+// 纯 ES5 渲染器 - 防御性版本 v4 (SVG Attributes Fix)
 (function (window) {
     var ClockRenderer = {};
 
@@ -51,15 +51,11 @@
                 return;
             }
 
-            // 旧版 WebKit SVG 可能没有 .children 属性，改用 check childNodes
             var hasChildren = false;
             if (ticksGroup.children && ticksGroup.children.length > 0) hasChildren = true;
             else if (ticksGroup.childNodes && ticksGroup.childNodes.length > 0) hasChildren = true;
 
-            if (hasChildren) {
-                log('ticks already exist');
-                return;
-            }
+            if (hasChildren) return;
 
             log('creating ticks...');
             for (var i = 1; i <= 12; i++) {
@@ -68,14 +64,20 @@
                 line.setAttribute('y1', '5');
                 line.setAttribute('x2', '50');
                 line.setAttribute('y2', '10');
-                line.setAttribute('class', 'tick');
+                // line.setAttribute('class', 'tick'); // CSS class might fail
+
+                // 显式设置属性 (Hardcode attributes because CSS fails on Kindle SVG)
+                line.setAttribute('fill', 'none');
+                line.setAttribute('stroke', 'black');
+                line.setAttribute('stroke-width', '2');
+
                 line.setAttribute('transform', 'rotate(' + (i * 30) + ' 50 50)');
                 ticksGroup.appendChild(line);
             }
             log('ticks created');
         } catch (e) {
             log('Init ticks error: ' + e.message);
-            throw e; // rethrow to be caught by main
+            throw e;
         }
     };
 

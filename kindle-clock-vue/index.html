@@ -44,12 +44,18 @@
       <!-- 指针时钟 DOM -->
       <div id="analog-clock" class="analog-clock hidden">
         <svg viewBox="0 0 100 100" class="clock-svg">
-          <circle cx="50" cy="50" r="48" class="face" />
-          <!-- 刻度将由 JS 动态生成 -->
+          <!-- 关键修复：显式添加 fill="none" stroke="black"，因为老内核可能忽略 CSS -->
+          <circle cx="50" cy="50" r="48" class="face" fill="none" stroke="black" stroke-width="2" />
+
+          <!-- 刻度组 -->
           <g id="ac-ticks"></g>
-          <line id="ac-hour" x1="50" y1="50" x2="50" y2="25" class="hand hour" />
-          <line id="ac-minute" x1="50" y1="50" x2="50" y2="10" class="hand minute" />
-          <circle cx="50" cy="50" r="2" class="center" />
+
+          <!-- 指针 -->
+          <line id="ac-hour" x1="50" y1="50" x2="50" y2="25" class="hand hour" stroke="black" stroke-width="4"
+            stroke-linecap="round" />
+          <line id="ac-minute" x1="50" y1="50" x2="50" y2="10" class="hand minute" stroke="black" stroke-width="2.5"
+            stroke-linecap="round" />
+          <circle cx="50" cy="50" r="2" class="center" fill="black" />
         </svg>
         <div id="ac-date" class="analog-date">1月1日</div>
       </div>

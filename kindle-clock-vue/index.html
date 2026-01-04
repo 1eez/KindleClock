@@ -22,7 +22,6 @@
       content.textContent += 'Msg: ' + message + '\nLine: ' + lineno + '\nSrc: ' + source + '\n\n';
     };
   </script>
-  <!-- 使用相对路径引入样式 -->
   <link rel="stylesheet" href="src/style.css">
 </head>
 
@@ -32,7 +31,7 @@
     <div id="refresh-overlay" class="refresh-overlay hidden"></div>
 
     <!-- 设置入口 -->
-    <div id="settings-trigger" class="settings-trigger"></div>
+    <div id="settings-trigger" class="settings-trigger" title="点击打开设置"></div>
 
     <!-- 内容区 -->
     <main id="content" class="content">
@@ -79,12 +78,21 @@
           </div>
         </div>
 
+        <div class="settings-group">
+          <label>时间校制 (小时)</label>
+          <div class="radio-group" id="opt-offset">
+            <button data-val="0">0</button>
+            <button data-val="8">+8</button>
+            <button data-val="-8">-8</button>
+          </div>
+        </div>
+
         <button id="btn-close-settings" class="close-btn">关闭</button>
       </div>
     </div>
   </div>
 
-  <!-- 引入原生 JS 逻辑 (相对路径) -->
+  <!-- 引入原生 JS 逻辑 -->
   <script src="src/clock-renderer.js"></script>
   <script src="src/main.js"></script>
 </body>

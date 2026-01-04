@@ -1,12 +1,8 @@
 :root {
   --bg-color: #ffffff;
   --text-color: #000000;
-  --font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-}
-
-* {
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+  --font-family: sans-serif;
+  /* 最安全的字体回退 */
 }
 
 html,
@@ -21,237 +17,173 @@ body {
   overflow: hidden;
 }
 
-/* Kindle 灰度适配 */
-@media screen {
-  body {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-}
-
-.visible {
-  display: -webkit-flex !important;
-  display: flex !important;
-}
-
-.hidden {
-  display: none !important;
-}
-
+/* 核心布局：回归 Table 布局 (兼容性之王) */
 .container {
+  display: table;
   width: 100%;
   height: 100%;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-direction: column;
-  flex-direction: column;
-  -webkit-transition: -webkit-transform 0.3s ease;
-  transition: transform 0.3s ease;
-  position: relative;
+  table-layout: fixed;
+  /* 强制表格宽度固定 */
   background-color: white;
-  /* 防止旋转时背景透出 */
-}
-
-/* --- 防残影遮罩 --- */
-.refresh-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: black;
-  z-index: 9999;
-  -webkit-animation: blink 1s steps(2);
-  animation: blink 1s steps(2);
-}
-
-@-webkit-keyframes blink {
-  0% {
-    background: white;
-  }
-
-  50% {
-    background: black;
-  }
-
-  100% {
-    background: white;
-  }
-}
-
-@keyframes blink {
-  0% {
-    background: white;
-  }
-
-  50% {
-    background: black;
-  }
-
-  100% {
-    background: white;
-  }
-}
-
-/* --- 设置入口 --- */
-.settings-trigger {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 150px;
-  height: 150px;
-  z-index: 100;
-  cursor: pointer;
 }
 
 .content {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
   width: 100%;
   height: 100%;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-align-items: center;
-  align-items: center;
-  -webkit-justify-content: center;
-  justify-content: center;
+}
+
+/* 内部元素容器：确保内容居中 */
+.digital-clock,
+.analog-clock {
+  display: block;
+  margin: 0 auto;
+  /* 块级元素水平居中 */
+  text-align: center;
+  /* 文本居中 */
+  width: 100%;
 }
 
 /* --- 数字时钟 --- */
-.digital-clock {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-direction: column;
-  flex-direction: column;
-  -webkit-align-items: center;
-  align-items: center;
-  -webkit-justify-content: center;
-  justify-content: center;
-}
-
 .dc-time {
-  font-size: 10rem;
-  font-weight: 700;
-  line-height: 1;
+  font-size: 16rem;
+  /* 稍微保守一点，避免溢出 */
+  font-weight: bold;
+  line-height: 1.0;
   margin-bottom: 2rem;
-  font-feature-settings: "tnum";
+  display: block;
 }
 
 .dc-date {
-  font-size: 2.5rem;
-  font-weight: 400;
+  font-size: 3rem;
+  display: block;
+}
+
+/* 适配不同屏幕尺寸 */
+@media (max-width: 800px) {
+  .dc-time {
+    font-size: 12rem;
+  }
+
+  .dc-date {
+    font-size: 2.5rem;
+  }
 }
 
 @media (max-width: 600px) {
   .dc-time {
-    font-size: 6rem;
+    font-size: 10rem;
   }
 
   .dc-date {
-    font-size: 1.5rem;
+    font-size: 2rem;
   }
 }
 
 /* --- 指针时钟 --- */
-.analog-clock {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-direction: column;
-  flex-direction: column;
-  -webkit-align-items: center;
-  align-items: center;
-  -webkit-justify-content: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-}
-
 .clock-svg {
-  width: 60vh;
-  height: 60vh;
-  max-width: 80vw;
-  max-height: 80vw;
-}
-
-.face,
-.tick {
-  fill: none;
-  stroke: black;
-  stroke-width: 2;
-}
-
-.hand {
-  stroke: black;
-  stroke-linecap: round;
-}
-
-.hand.hour {
-  stroke-width: 4;
-}
-
-.hand.minute {
-  stroke-width: 2.5;
-}
-
-.center {
-  fill: black;
+  width: 80vmin;
+  /* 相对视口最小边 */
+  height: 80vmin;
+  display: inline-block;
+  /* SVG 在 text-align:center 下表现良好 */
 }
 
 .analog-date {
   margin-top: 2rem;
-  font-size: 2rem;
-  font-weight: 500;
+  font-size: 2.5rem;
+  font-weight: bold;
+  display: block;
+}
+
+/* --- 设置入口 --- */
+.settings-trigger {
+  position: fixed;
+  /* 相对于视口定位 */
+  top: 0;
+  right: 0;
+  width: 30%;
+  /* 巨大化触发区 */
+  height: 30%;
+  z-index: 10000;
+  opacity: 0;
+  /* 完全透明 */
 }
 
 /* --- 设置面板 --- */
 .settings-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.95);
-  display: -webkit-flex;
-  display: flex;
-  -webkit-align-items: center;
-  align-items: center;
-  -webkit-justify-content: center;
-  justify-content: center;
-  z-index: 200;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+  /* 设置界面全白背景，避免透明度性能问题 */
+  z-index: 20000;
+  display: none;
+  /* JS控制显隐 */
 }
 
+.settings-overlay.visible {
+  display: block;
+}
+
+/* 使用绝对定位模拟 Flex 居中 (在 .settings-overlay 内) */
 .settings-dialog {
-  background: white;
-  padding: 3rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* 如果不支持 translate，可以使用负 margin，但在 2013+ 浏览器应该支持 translate */
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+
+  width: 90%;
+  max-width: 600px;
   border: 5px solid black;
-  width: 85%;
-  max-width: 500px;
-  box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  background: white;
+  box-sizing: border-box;
+  text-align: left;
 }
 
 .settings-title {
   font-size: 2.5rem;
-  margin-top: 0;
   border-bottom: 3px solid black;
-  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .settings-group {
-  margin: 2rem 0;
+  margin-bottom: 2rem;
 }
 
 .settings-group label {
   display: block;
   font-size: 1.5rem;
   font-weight: bold;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
+/* 按钮组模拟 Flex (使用 inline-block) */
 .radio-group {
-  display: -webkit-flex;
-  display: flex;
-  gap: 1rem;
+  display: block;
+  font-size: 0;
+  /* 消除间隙 */
+  text-align: center;
 }
 
 .radio-group button {
-  flex: 1;
-  padding: 1rem;
+  display: inline-block;
+  width: 23%;
+  /* 稍微留点空隙 */
+  margin: 1%;
+  padding: 1rem 0;
   font-size: 1.2rem;
   border: 2px solid black;
   background: white;
-  cursor: pointer;
+  color: black;
 }
 
 .radio-group button.active {
@@ -260,12 +192,33 @@ body {
 }
 
 .close-btn {
+  display: block;
   width: 100%;
   padding: 1.5rem;
   font-size: 1.5rem;
   background: black;
   color: white;
   border: none;
-  margin-top: 1rem;
-  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Utility */
+.hidden {
+  display: none !important;
+}
+
+/* 防残影 */
+.refresh-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  z-index: 30000;
+  display: none;
+}
+
+.refresh-overlay.blink-active {
+  display: block;
 }

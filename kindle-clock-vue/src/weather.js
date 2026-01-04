@@ -131,7 +131,7 @@
         setTimeout(function () {
             Weather.update();
             // 每 20 分钟刷新一次
-            setInterval(Weather.update, 20 * 60 * 1000);
+            setInterval(Weather.update, 120 * 60 * 1000);
         }, 2000);
     });
 

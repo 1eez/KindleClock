@@ -1,8 +1,7 @@
-// 主程序逻辑 - 终极修复版
+// 主程序逻辑 - 修复 v5
 (function (window) {
     // === 工具函数 ===
     function debugLog(msg) {
-        // 只有在错误发生时才显示错误面板，避免遮挡
         var el = document.getElementById('error-content');
         if (el) el.textContent += msg + '\n';
     }
@@ -25,23 +24,17 @@
     // === 状态 ===
     var config = {
         clockType: 'digital',
-        rotation: 0,
-        timeOffset: 8 // 默认为 +8 (北京时间)，专门配合 Kindle 的 UTC bug
+        rotation: 0
     };
 
-    // === 核心：时间获取 (强制修正时区) ===
+    // === 核心：时间获取 (及 UTC+8 补丁) ===
     function getCurrentTime() {
         var now = new Date();
-
-        // 如果设置了偏移量，我们基于 UTC 时间手动构建时间对象
-        // Kindle 也就是 UTC 时间 (+0)，所以如果我们要 UTC+8，就直接 getUTCHours() + 8
-
+        // 强制 +8 小时 (北京时间)
         // 获取 UTC 时间戳
         var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-
-        // 加上我们的偏移量 (小时)
-        var targetTime = new Date(utc + (3600000 * config.timeOffset));
-
+        // +8 小时
+        var targetTime = new Date(utc + (3600000 * 8));
         return targetTime;
     }
 
@@ -52,9 +45,6 @@
 
         var cRot = SafeStorage.get('rotation');
         if (cRot) config.rotation = parseInt(cRot, 10);
-
-        var cOff = SafeStorage.get('timeOffset');
-        if (cOff !== null) config.timeOffset = parseInt(cOff, 10);
     } catch (e) { }
 
     // === DOM ===
@@ -63,7 +53,6 @@
     function init() {
         try {
             dom.app = document.getElementById('app-container');
-            dom.content = document.getElementById('content');
             dom.digitalClock = document.getElementById('digital-clock');
             dom.analogClock = document.getElementById('analog-clock');
 
@@ -73,15 +62,25 @@
 
             // UI 初始化
             initRenderer();
-            applySettings();
+
             bindEvents();
+
+            // 启动前先应用一次布局，确保 SVG 有大小
+            handleResize();
+            applySettings();
 
             // 启动时钟
             tick();
+            setInterval(tick, 1000);
 
+            // 监听窗口变化，重新计算 SVG 大小
+            window.addEventListener('resize', handleResize);
+
+            debugLog('Init success v5');
         } catch (e) {
             debugLog('INIT FAIL: ' + e.message);
-            document.getElementById('error-log').style.display = 'block';
+            var el = document.getElementById('error-log');
+            if (el) el.style.display = 'block';
         }
     }
 
@@ -91,8 +90,22 @@
         }
     }
 
+    // 手动计算 SVG 尺寸 (替代 vmin)
+    function handleResize() {
+        var w = window.innerWidth;
+        var h = window.innerHeight;
+        var min = Math.min(w, h); // 取短边
+        var size = Math.floor(min * 0.85); // 85% 占比
+
+        // 找到 SVG 并设置像素宽高
+        var svgs = document.getElementsByTagName('svg');
+        for (var i = 0; i < svgs.length; i++) {
+            svgs[i].style.width = size + 'px';
+            svgs[i].style.height = size + 'px';
+        }
+    }
+
     function bindEvents() {
-        // 设置触发：同时绑定 touch 和 click，保证万无一失
         function onTrigger(e) {
             e.stopPropagation();
             e.preventDefault();
@@ -109,7 +122,6 @@
             dom.btnCloseSettings.onclick = closeSettings;
         }
 
-        // 选项绑定代理
         bindRadioGroup('opt-clock-type', function (val) {
             config.clockType = val;
             SafeStorage.set('clockType', val);
@@ -121,12 +133,6 @@
             SafeStorage.set('rotation', val);
             applySettings();
         });
-
-        bindRadioGroup('opt-offset', function (val) {
-            config.timeOffset = parseInt(val, 10);
-            SafeStorage.set('timeOffset', val);
-            tick(); // 立即刷新时间
-        });
     }
 
     function bindRadioGroup(id, callback) {
@@ -136,7 +142,6 @@
         for (var i = 0; i < btns.length; i++) {
             btns[i].onclick = function () {
                 var val = this.getAttribute('data-val');
-                // Update UI
                 for (var j = 0; j < btns.length; j++) btns[j].className = '';
                 this.className = 'active';
                 callback(val);
@@ -155,11 +160,8 @@
     }
 
     function openSettings() {
-        // 渲染当前状态
         updateRadioUI('opt-clock-type', config.clockType);
         updateRadioUI('opt-rotation', config.rotation);
-        updateRadioUI('opt-offset', config.timeOffset);
-
         dom.settingsOverlay.className = 'settings-overlay visible';
     }
 
@@ -168,11 +170,12 @@
     }
 
     function applySettings() {
-        // 1. 旋转 (应用在 content 也就是 table-cell 上，或者 container 上)
-        // 对于 Table 布局，旋转最外层的 container 最安全
+        // 旋转逻辑：应用到最外层
         var r = config.rotation;
-        // 重置
+
+        // 清除样式
         dom.app.style.transform = '';
+        dom.app.style.webkitTransform = ''; // 兼容旧 WebKit
         dom.app.style.width = '100%';
         dom.app.style.height = '100%';
         dom.app.style.position = 'static';
@@ -180,10 +183,11 @@
         dom.app.style.marginLeft = 0;
 
         if (r !== 0) {
-            // 复杂的旋转逻辑，Table 布局旋转后需要重新定位
-            dom.app.style.transform = 'rotate(' + r + 'deg)';
+            var transVal = 'rotate(' + r + 'deg)';
+            dom.app.style.transform = transVal;
+            dom.app.style.webkitTransform = transVal; // 关键：Kindle 需要前缀
 
-            // 如果是横屏 (90/270)，交换宽高
+            // 横屏处理
             if (r % 180 !== 0) {
                 var width = window.innerWidth;
                 var height = window.innerHeight;
@@ -191,25 +195,28 @@
                 dom.app.style.width = height + 'px';
                 dom.app.style.height = width + 'px';
 
-                // 强制绝对定位居中
                 dom.app.style.position = 'absolute';
                 dom.app.style.top = '50%';
                 dom.app.style.left = '50%';
-                dom.app.style.marginTop = -(width / 2) + 'px';
-                dom.app.style.marginLeft = -(height / 2) + 'px';
+                dom.app.style.marginTop = -(width / 2) + 'px'; // 垂直居中修正
+                dom.app.style.marginLeft = -(height / 2) + 'px'; // 水平居中修正
             }
         }
 
-        // 2. 显示类型
+        // 显示模式
         if (config.clockType === 'digital') {
-            dom.digitalClock.className = 'digital-clock'; // remove hidden
+            dom.digitalClock.className = 'digital-clock';
             dom.analogClock.className = 'analog-clock hidden';
         } else {
             dom.digitalClock.className = 'digital-clock hidden';
             dom.analogClock.className = 'analog-clock';
+            // 切换到 analog 时手动重新算一下大小
+            handleResize();
+            // 并初始化刻度
+            if (window.ClockRenderer) window.ClockRenderer.initAnalogTicks();
         }
 
-        tick(); // 刷新一下
+        tick();
     }
 
     function tick() {
@@ -217,10 +224,9 @@
 
         if (window.ClockRenderer) {
             if (config.clockType === 'digital') window.ClockRenderer.renderDigital(now);
-            else window.ClockRenderer.renderAnalog(now);
+            else window.ClockRenderer.renderAnalog(now); // 指针始终更新
         }
 
-        // Ghosting check
         if (now.getMinutes() === 0 && now.getSeconds() === 0) {
             triggerGhostingFix();
         }
@@ -233,10 +239,6 @@
             setTimeout(function () { el.className = 'refresh-overlay'; }, 1000);
         }
     }
-
-    // 启动主循环：每秒检查，但只在分钟变化时大更新？不，为了平滑，每秒更新秒针(即使没有秒针UI)
-    // 我们的UI没有秒针，所以可以每秒跑一次，开销很小
-    setInterval(tick, 1000);
 
     window.onload = init;
 
